@@ -224,6 +224,17 @@ const getFileIconName = (fileName) => {
 function MessageBubble({ message, isMine, isGroup, onLongPress, onReplyPress, onImagePress, onDocPress, downloadProgress, highlightedMessageId, currentUserId }) {
   const isDeleted = message.isDeleted;
   const msgType = message.messageType || message.type || 'text';
+
+  if (msgType === 'system') {
+    return (
+      <View style={styles.systemMessageContainer}>
+        <View style={styles.systemMessagePill}>
+          <Text style={styles.systemMessageText}>{message.content}</Text>
+        </View>
+      </View>
+    );
+  }
+
   const time = new Date(message.createdAt).toLocaleTimeString([], {
     hour: '2-digit', minute: '2-digit', hour12: true,
   });
@@ -2758,5 +2769,26 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
+  },
+  systemMessageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 8,
+    width: '100%',
+  },
+  systemMessagePill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 5,
+    maxWidth: '85%',
+  },
+  systemMessageText: {
+    color: Colors.text.tertiary,
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });

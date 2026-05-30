@@ -29,7 +29,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://  pulsechat-backend-xlri.onrender.com/api"
+        "EXPO_PUBLIC_API_URL": "https://pulsechat-backend-xlri.onrender.com/api"
       }
     }
   },
