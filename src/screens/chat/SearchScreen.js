@@ -33,7 +33,7 @@ export default function SearchScreen({ navigation }) {
   };
 
   const handleInviteSMS = async () => {
-    const inviteMessage = `Hey, join me on PulseChat! It's a secure real-time messaging app. Register here: https://go-pulsechat.vercel.app/signup`;
+    const inviteMessage = `Hey, join me on PulseChat! It's a secure real-time messaging app. Register here: https://go-pulsechat.vercel.app/landing`;
     const separator = Platform.OS === 'ios' ? '&' : '?';
     const smsUrl = `sms:${query.trim()}${separator}body=${encodeURIComponent(inviteMessage)}`;
     try {
@@ -51,7 +51,7 @@ export default function SearchScreen({ navigation }) {
   };
 
   const handleShareInvite = async () => {
-    const inviteMessage = `Hey, join me on PulseChat! It's a secure real-time messaging app. Register here: https://go-pulsechat.vercel.app/signup`;
+    const inviteMessage = `Hey, join me on PulseChat! It's a secure real-time messaging app. Register here: https://go-pulsechat.vercel.app/landing`;
     try {
       await Share.share({
         message: inviteMessage,
