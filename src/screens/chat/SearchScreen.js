@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
-  StyleSheet, SafeAreaView, ActivityIndicator, Image, Platform, StatusBar
+  StyleSheet, SafeAreaView, ActivityIndicator, Image, Platform, StatusBar,
+  Share, Alert, Linking
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../theme/colors';
@@ -14,6 +15,51 @@ export default function SearchScreen({ navigation }) {
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
+
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(query.trim());
+  const isPhone = /^[+\d\s-]{5,20}$/.test(query.trim()) && /[\d]/.test(query.trim());
+
+  const handleInviteEmail = async () => {
+    try {
+      setIsInviting(true);
+      await userAPI.inviteUser({ email: query.trim() });
+      Alert.alert('Invitation Sent', `An invitation email has been dispatched to ${query.trim()}!`);
+    } catch (err) {
+      Alert.alert('Invitation Failed', err.response?.data?.message || err.message || 'Failed to send invite.');
+    } finally {
+      setIsInviting(false);
+    }
+  };
+
+  const handleInviteSMS = async () => {
+    const inviteMessage = `Hey, join me on PulseChat! It's a secure real-time messaging app. Register here: https://go-pulsechat.vercel.app/signup`;
+    const separator = Platform.OS === 'ios' ? '&' : '?';
+    const smsUrl = `sms:${query.trim()}${separator}body=${encodeURIComponent(inviteMessage)}`;
+    try {
+      const supported = await Linking.canOpenURL(smsUrl);
+      if (supported) {
+        await Linking.openURL(smsUrl);
+      } else {
+        Alert.alert('Not Supported', 'Sending SMS directly is not supported on this device. We will open share options.');
+        await handleShareInvite();
+      }
+    } catch (err) {
+      console.warn('[SearchScreen] SMS error:', err.message);
+      await handleShareInvite();
+    }
+  };
+
+  const handleShareInvite = async () => {
+    const inviteMessage = `Hey, join me on PulseChat! It's a secure real-time messaging app. Register here: https://go-pulsechat.vercel.app/signup`;
+    try {
+      await Share.share({
+        message: inviteMessage,
+      });
+    } catch (err) {
+      console.warn('[SearchScreen] Share error:', err.message);
+    }
+  };
 
   const handleSearch = async (text) => {
     setQuery(text);
@@ -106,6 +152,43 @@ export default function SearchScreen({ navigation }) {
               <View style={styles.empty}>
                 <Ionicons name="person-outline" size={48} color={Colors.text.placeholder} />
                 <Text style={styles.emptyText}>No users found</Text>
+
+                <View style={styles.inviteContainer}>
+                  {isEmail ? (
+                    <TouchableOpacity
+                      style={[styles.inviteBtn, styles.emailInviteBtn]}
+                      onPress={handleInviteEmail}
+                      disabled={isInviting}
+                    >
+                      {isInviting ? (
+                        <ActivityIndicator color={Colors.brand.indigo} size="small" />
+                      ) : (
+                        <>
+                          <Ionicons name="mail-outline" size={16} color={Colors.brand.indigo} style={{ marginRight: 6 }} />
+                          <Text style={styles.emailInviteText}>Invite via Email</Text>
+                        </>
+                      )}
+                    </TouchableOpacity>
+                  ) : null}
+
+                  {isPhone ? (
+                    <TouchableOpacity
+                      style={[styles.inviteBtn, styles.emailInviteBtn]}
+                      onPress={handleInviteSMS}
+                    >
+                      <Ionicons name="chatbox-ellipses-outline" size={16} color={Colors.brand.indigo} style={{ marginRight: 6 }} />
+                      <Text style={styles.emailInviteText}>Invite via SMS</Text>
+                    </TouchableOpacity>
+                  ) : null}
+
+                  <TouchableOpacity
+                    style={[styles.inviteBtn, styles.shareInviteBtn]}
+                    onPress={handleShareInvite}
+                  >
+                    <Ionicons name="share-social-outline" size={16} color="#fff" style={{ marginRight: 6 }} />
+                    <Text style={styles.shareInviteText}>Share Invite Link</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ) : query.length < 2 ? (
               <View style={styles.empty}>
@@ -153,7 +236,16 @@ const styles = StyleSheet.create({
   userInfo: { flex: 1 },
   userName: { fontSize: 16, fontWeight: '600', color: Colors.text.primary, marginBottom: 2 },
   userUsername: { fontSize: 13, color: Colors.text.tertiary },
-  empty: { alignItems: 'center', paddingTop: 60 },
+  empty: { alignItems: 'center', paddingTop: 60, width: '100%' },
   emptyText: { fontSize: 16, color: Colors.text.tertiary, marginTop: 16 },
   emptyHint: { fontSize: 14, color: Colors.text.placeholder, marginTop: 40 },
+  inviteContainer: { width: '100%', paddingHorizontal: 40, marginTop: 24, gap: 12 },
+  inviteBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    height: 48, borderRadius: 24, borderWidth: 1,
+  },
+  emailInviteBtn: { borderColor: Colors.brand.indigo + '40', backgroundColor: Colors.brand.indigo + '15' },
+  shareInviteBtn: { borderColor: Colors.glass.border, backgroundColor: Colors.bg.tertiary },
+  emailInviteText: { color: Colors.brand.indigo, fontSize: 14, fontWeight: '600' },
+  shareInviteText: { color: Colors.text.primary, fontSize: 14, fontWeight: '600' },
 });

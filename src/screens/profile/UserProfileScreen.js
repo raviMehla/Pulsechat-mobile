@@ -101,9 +101,7 @@ export default function UserProfileScreen({ navigation, route }) {
       formData.append('bio', editBio.trim());
       // Backwards compatibility with about/bio
       formData.append('about', editBio.trim());
-      if (editPhone.trim()) {
-        formData.append('phone', editPhone.trim());
-      }
+      formData.append('phone', editPhone.trim());
 
       if (avatarAsset) {
         const fileUri = avatarAsset.uri;

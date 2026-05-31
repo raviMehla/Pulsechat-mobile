@@ -167,6 +167,9 @@ export const userAPI = {
   // GET /api/users/search?q=query
   searchUsers: (q) => api.get('/users/search', { params: { q } }),
 
+  // POST /api/users/invite
+  inviteUser: (data) => api.post('/users/invite', data),
+
   // GET /api/users/status/:id
   getUserStatus: (id) => api.get(`/users/status/${id}`),
 
