@@ -1,5 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 // ─────────────────────────────────────────────────────────
 // CONFIGURATION
@@ -45,7 +46,7 @@ api.interceptors.request.use(
     try {
       let token = _cachedToken;
       if (!token) {
-        token = await AsyncStorage.getItem('token');
+        token = await SecureStore.getItemAsync('token');
         _cachedToken = token;
       }
 
@@ -96,7 +97,8 @@ api.interceptors.response.use(
       if (!isAuthRoute && !_isRedirecting) {
         _isRedirecting = true;
         _cachedToken = null;
-        await AsyncStorage.multiRemove(['token', 'user']);
+        await SecureStore.deleteItemAsync('token');
+        await AsyncStorage.removeItem('user');
         _router?.replace('/(auth)/login');
         setTimeout(() => { _isRedirecting = false; }, 3000);
       }

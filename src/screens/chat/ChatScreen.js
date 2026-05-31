@@ -396,7 +396,6 @@ function MessageBubble({ message, isMine, isGroup, onLongPress, onReplyPress, on
                 )}
               </View>
             </TouchableOpacity>
-          )
           ) : (
             /* Text message */
             <Text style={[styles.messageText, isMine ? styles.messageTextMine : styles.messageTextTheirs]}>
@@ -1451,10 +1450,6 @@ export default function ChatScreen({ navigation, route }) {
   };
 
   const triggerEditMessage = (msg) => {
-    setSelectedMessage(null);
-    setEditingMessage(msg);
-    setInputText(msg.content || '');
-  };
     setSelectedMessage(null);
     setEditingMessage(msg);
     setInputText(msg.content || '');

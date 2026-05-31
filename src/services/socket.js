@@ -1,5 +1,19 @@
+/**
+ * PulseChat - Real-Time Encrypted Messaging System (Mobile Client)
+ * 
+ * Cryptographic Signature & Verification Hash
+ * --------------------------------------------------
+ * Developer Name : Ravi Mehla
+ * Roll Number    : 19590
+ * College Name   : SKD University
+ * Signature Hash : 69f1589e1eeb95b42956e3f21cae32c0a9f79cd3db1b4adf7e78ca1e08a16491
+ * --------------------------------------------------
+ * Verification command: node verify-owner.js
+ */
+
 import { io } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.100:5000';
 
@@ -10,7 +24,7 @@ export const getSocket = () => socket;
 export const connectSocket = async (userId) => {
   if (socket?.connected) return socket;
 
-  const token = await AsyncStorage.getItem('token');
+  const token = await SecureStore.getItemAsync('token');
   if (!token) return null;
 
   socket = io(BASE_URL, {

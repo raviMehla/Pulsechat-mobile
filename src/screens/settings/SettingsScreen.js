@@ -46,6 +46,32 @@ function SettingsRow({ icon, iconBg, label, value, onPress, destructive, showChe
 export default function SettingsScreen({ navigation }) {
   const { user, logout } = useAuth();
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
+  const [versionTaps, setVersionTaps] = useState(0);
+  const [lastTapTime, setLastTapTime] = useState(0);
+
+  const handleVersionPress = () => {
+    const now = Date.now();
+    if (now - lastTapTime > 2000) {
+      setVersionTaps(1);
+    } else {
+      const nextTaps = versionTaps + 1;
+      if (nextTaps >= 7) {
+        Alert.alert(
+          'Security Verification',
+          'This application is officially registered and signed.\n\n' +
+          'Developer: Ravi Mehla\n' +
+          'Roll Number: 19590\n' +
+          'College: SKD University\n\n' +
+          'Signature Hash:\n69f1589e1eeb95b42956e3f21cae32c0a9f79cd3db1b4adf7e78ca1e08a16491',
+          [{ text: 'OK' }]
+        );
+        setVersionTaps(0);
+      } else {
+        setVersionTaps(nextTaps);
+      }
+    }
+    setLastTapTime(now);
+  };
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -202,7 +228,7 @@ export default function SettingsScreen({ navigation }) {
           />
         </SettingsSection>
 
-        <Text style={styles.versionText}>PulseChat v1.0.0</Text>
+        <Text style={styles.versionText} onPress={handleVersionPress}>PulseChat v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
