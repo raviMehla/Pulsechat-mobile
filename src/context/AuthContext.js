@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { authAPI, userAPI, setAuthToken, clearAuthToken } from '../services/api';
+import { authAPI, userAPI, setAuthToken, clearAuthToken, setLogoutHandler } from '../services/api';
 import { connectSocket, disconnectSocket } from '../services/socket';
 
 const AuthContext = createContext(null);
@@ -87,6 +87,11 @@ export const AuthProvider = ({ children }) => {
     await SecureStore.deleteItemAsync('token');
     await AsyncStorage.removeItem('user');
   }, []);
+
+  // ─── Register logout callback with API interceptor ───
+  useEffect(() => {
+    setLogoutHandler(logout);
+  }, [logout]);
 
   // ─── Update user in context after profile changes ───
   const updateUser = useCallback((updates) => {

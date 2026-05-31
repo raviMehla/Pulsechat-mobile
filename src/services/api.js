@@ -6,15 +6,22 @@ import * as SecureStore from 'expo-secure-store';
 // CONFIGURATION
 // Backend URL — update this to your local IP for dev testing
 // ─────────────────────────────────────────────────────────
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.100:5000';
+const rawUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.100:5000';
+const BASE_URL = rawUrl.endsWith('/api') ? rawUrl : `${rawUrl.replace(/\/$/, '')}/api`;
 
 let _cachedToken = null;
 let _router = null;
 let _isRedirecting = false;
+let _logoutFn = null;
 
 // Set router reference for global navigation
 export const setApiRouter = (router) => {
   _router = router;
+};
+
+// Set logout handler for global 401 redirect
+export const setLogoutHandler = (logoutFn) => {
+  _logoutFn = logoutFn;
 };
 
 // Set in-memory token cache
@@ -30,7 +37,7 @@ export const clearAuthToken = () => {
 // AXIOS INSTANCE
 // ─────────────────────────────────────────────────────────
 const api = axios.create({
-  baseURL: `${BASE_URL}/api`,
+  baseURL: BASE_URL,
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
@@ -96,10 +103,17 @@ api.interceptors.response.use(
       const isAuthRoute = url.includes('/auth/login') || url.includes('/auth/register');
       if (!isAuthRoute && !_isRedirecting) {
         _isRedirecting = true;
-        _cachedToken = null;
-        await SecureStore.deleteItemAsync('token');
-        await AsyncStorage.removeItem('user');
-        _router?.replace('/(auth)/login');
+        if (_logoutFn) {
+          try {
+            await _logoutFn();
+          } catch (err) {
+            console.warn('[API] Global logout error:', err.message);
+          }
+        } else {
+          _cachedToken = null;
+          await SecureStore.deleteItemAsync('token');
+          await AsyncStorage.removeItem('user');
+        }
         setTimeout(() => { _isRedirecting = false; }, 3000);
       }
     }

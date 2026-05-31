@@ -14,8 +14,10 @@
 import { io } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { showLocalNotification } from './notifications';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.100:5000';
+const rawUrl = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.100:5000';
+const BASE_URL = rawUrl.replace(/\/api\/?$/, '').replace(/\/$/, '');
 
 let socket = null;
 
@@ -45,7 +47,6 @@ export const connectSocket = async (userId) => {
   socket.on('offline_missed_calls', (missedCalls) => {
     if (__DEV__) console.log('[Socket] Received offline missed calls:', missedCalls);
     try {
-      const { showLocalNotification } = require('./notifications');
       missedCalls.forEach(call => {
         const callTime = new Date(call.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const callDate = new Date(call.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' });

@@ -75,13 +75,16 @@ export default function RootNavigator() {
 
   if (isLoading || checkingBiometrics) return <LoadingScreen />;
 
-  if (isAuthenticated && isLocked) {
-    return <BiometricLockScreen onUnlock={() => setIsLocked(false)} />;
-  }
-
   return (
     <NavigationContainer linking={linking}>
-      {isAuthenticated ? <MainStack /> : <AuthStack />}
+      <View style={styles.container}>
+        {isAuthenticated ? <MainStack /> : <AuthStack />}
+        {isAuthenticated && isLocked && (
+          <View style={[StyleSheet.absoluteFill, { zIndex: 9999 }]}>
+            <BiometricLockScreen onUnlock={() => setIsLocked(false)} />
+          </View>
+        )}
+      </View>
     </NavigationContainer>
   );
 }
@@ -92,5 +95,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bg.primary,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  container: {
+    flex: 1,
   },
 });
