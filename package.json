@@ -45,5 +45,15 @@
     "@babel/core": "^7.25.2",
     "babel-preset-expo": "^56.0.14"
   },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "expo-av"
+        ],
+        "listUnknownPackages": false
+      }
+    }
+  },
   "private": true
 }
