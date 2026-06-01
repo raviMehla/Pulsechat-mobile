@@ -12,6 +12,8 @@ import {
   Image,
   Platform,
   ActivityIndicator,
+  ScrollView,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
